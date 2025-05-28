@@ -19,20 +19,12 @@ Identify large directories to pinpoint where space is consumed:
 ```bash
 sudo du -xh / | sort -rh | head -40
 ```
-Focus on `/var/log`, `/var/cache`, `/tmp`, or NGINX-specific directories (`/var/log/nginx`, `/var/cache/nginx`).
+Focus on `/var/log`, `/var/cache`, `/tmp`, or NGINX-specific directories (`/var/log/nginx`, `/var/cache/nginx`). 
+Check NGINX log files size. Look for excessive error or access logs that might have grown too large.
 
 ---
 
-### c. Inspect NGINX logs  
-Check NGINX log files size:  
-```bash
-ls -lh /var/log/nginx/
-```
-Look for excessive error or access logs that might have grown too large.
-
----
-
-### d. Check for core dumps or crash files  
+### c. Check for core dumps or crash files  
 Core dumps or unexpected crash files can fill disk:  
 ```bash
 sudo find / -type f -name 'core*' -exec ls -lh {} \;
@@ -40,7 +32,7 @@ sudo find / -type f -name 'core*' -exec ls -lh {} \;
 
 ---
 
-### e. Check for stale processes or files open but deleted  
+### d. Check for stale processes or files open but deleted  
 Sometimes, deleted files still held open by processes consume space:  
 ```bash
 sudo lsof | grep '(deleted)'
@@ -54,18 +46,11 @@ sudo lsof | grep '(deleted)'
 **Scenario:** Heavy traffic or errors cause access/error logs to balloon.  
 **Impact:** Disk fills quickly, service may degrade due to lack of disk.  
 **Recovery:**  
-- Rotate and compress logs immediately:  
-  ```bash
-  sudo logrotate -f /etc/logrotate.d/nginx
-  ```  
-- Clear or archive old logs:  
-  ```bash
-  sudo truncate -s 0 /var/log/nginx/access.log
-  sudo truncate -s 0 /var/log/nginx/error.log
-  ```  
-- Configure `logrotate` properly for NGINX to prevent future issues.
-
----
+**Backup:** We are running in cloud so add a disk to backup log access nginx for debug in future.
+```bash
+cp -rp <heavylog> <Disk_backup_path>
+echo "" > <heavylog>
+```
 
 ### Cause 2: Cache accumulation  
 **Scenario:** NGINX caching or system package caches grow uncontrollably.  
@@ -92,23 +77,10 @@ sudo lsof | grep '(deleted)'
   sudo find / -name 'core*' -delete
   ```  
 - Investigate and fix the crash root cause.  
-- Disable core dumps if not needed:  
-  ```bash
-  sudo systemctl disable apport.service
-  ```
 
 ---
 
-### Cause 4: Orphaned deleted files held open  
-**Scenario:** Large files deleted but still held open by NGINX or other processes.  
-**Impact:** Disk appears full until process restarted.  
-**Recovery:**  
-- Identify such files with `lsof` as above.  
-- Restart the holding process (e.g., `sudo systemctl restart nginx`).
-
----
-
-### Cause 5: Unexpected files or misconfiguration  
+### Cause 4: Unexpected files or misconfiguration  
 **Scenario:** Other services, backups, or misconfigured cron jobs write large files.  
 **Impact:** Disk fills unexpectedly.  
 **Recovery:**  
