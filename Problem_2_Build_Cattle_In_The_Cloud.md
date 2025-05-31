@@ -1,3 +1,6 @@
+Architecture Picture
+https://github.com/phamtrong/devops-exercises/blob/main/Problem2.svg
+
 # Frontend Flow Architecture with AWS WAF, CloudFront, and S3
 
 ## Overview
