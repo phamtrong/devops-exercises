@@ -1,5 +1,7 @@
 # Trading Platform Architecture
 
+![Architecture Diagram](./architecture.png)
+
 ## Overview
 
 This doc covers the full architecture of our trading platform on AWS. There are two main flows: the Frontend Flow that serves static assets through CDN, and the Backend API Flow that handles trading logic, real-time market data, and order management through microservices running on Kubernetes.
